@@ -74,6 +74,12 @@ python app/main.py --import data/example_portfolio.csv
 python app/main.py --analyze
 python app/main.py --visualize
 
+# Sample Output 
+Total Return: 32.4%
+CAGR: 6.5%
+Sharpe Ratio: 1.12
+Suggested Rebalancing: Reduce TSLA by 15%, Add VOO and Bonds
+
 ```
 
 
