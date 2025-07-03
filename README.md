@@ -1,4 +1,4 @@
-# Investment-Portfolio-Analyzer
+# Investment Portfolio Analyzer
 
 🚀 Features
 🧮 Performance Metrics: Calculates ROI, CAGR, and Sharpe Ratio
