@@ -13,4 +13,4 @@
 
 🗃️ Database Integration: Store and retrieve portfolios and transactions using SQL
 
-🔐 Optional Brokerage Integration: Fetch data from APIs like Alpaca or Wealthsimple
+🔐 Brokerage Integration: Fetch data from APIs like Alpaca or Wealthsimple
