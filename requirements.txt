@@ -1,0 +1,27 @@
+# Core tools
+pandas             # For dataframes, CSV parsing, and time-series analysis
+numpy              # For numerical calculations
+
+# Financial data APIs
+yfinance           # To pull stock prices (or another provider like alpha_vantage)
+
+# Visualization
+matplotlib         # Plotting price charts, asset allocation pie charts
+seaborn            # Better visualizations and statistical plots
+
+# Database
+SQLAlchemy         # ORM to connect to SQLite or PostgreSQL
+psycopg2-binary    # PostgreSQL connector (skip if using SQLite)
+
+# CLI or UI
+argparse           # (Comes with Python stdlib — just list it for awareness)
+# streamlit          # If building a UI-based app instead of CLI
+
+# Optional: .env config
+python-dotenv      # To manage secrets like API keys in a .env file
+
+# Optional: if using C++ with pybind11
+# pybind11           # For C++ and Python bindings
+
+# Optional testing
+pytest             # For writing unit tests
