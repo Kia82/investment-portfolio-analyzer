@@ -1,4 +1,3 @@
-# git keep
 
 def main():
     print("Sample test")
