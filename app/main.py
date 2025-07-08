@@ -1,8 +1,9 @@
+import montecarlo
 
 def main():
     print("Sample test")
+    print(montecarlo.add(2,3))
 
-    print("test 2")
 
 if __name__ == "__main__":
     main()
