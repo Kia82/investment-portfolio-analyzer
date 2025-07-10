@@ -38,7 +38,7 @@ Result runSimulation(double principal, double meanReturn, double annualVolatilit
 
 }
 
-// test function to ensure no import issues are taken place 
+// test function for easy debugging    
 double add(double a, double b) {
     return a + b;
 }
