@@ -1,1 +1,10 @@
-/venv/
+# Folders
+/venv
+/montecarlo.egg-info
+/build
+/app/__pycache__/
+
+# Files
+montecarlo.cpython-311-x86_64-linux-gnu.so
+.vscode
+.env
