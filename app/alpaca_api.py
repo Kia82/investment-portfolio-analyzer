@@ -78,25 +78,25 @@ class AlpacaStockHistoricalDataClient:
             timeframe=timeframe,
             currency=currency
         )
-        return self.historical_data.get_stock_bars(request_params=request_params)
+        return self.historical_data.get_stock_bars(request_params=request_params).df
 
 
-class AlpacaClientFacade:
-    """
-    A facade class for interacting with Alpaca's trading and historical data APIs.
+# class AlpacaClientFacade:
+#     """
+#     A facade class for interacting with Alpaca's trading and historical data APIs.
 
-    This class simplifies the initialization and usage of Alpaca's Trading and Historical Data clients.
+#     This class simplifies the initialization and usage of Alpaca's Trading and Historical Data clients.
 
-    Attributes:
-        trading (AlpacaTradingClient): The client for trading operations.
-        historical (AlpacaStockHistoricalDataClient): The client for accessing historical stock data.
+#     Attributes:
+#         trading (AlpacaTradingClient): The client for trading operations.
+#         historical (AlpacaStockHistoricalDataClient): The client for accessing historical stock data.
 
-    Args:
-        api_key (str): The API key for Alpaca authentication.
-        api_secret (str): The API secret for Alpaca authentication.
-        paper (bool, optional): Whether to use the paper trading environment. Defaults to True.
-    """
+#     Args:
+#         api_key (str): The API key for Alpaca authentication.
+#         api_secret (str): The API secret for Alpaca authentication.
+#         paper (bool, optional): Whether to use the paper trading environment. Defaults to True.
+#     """
 
-    def __init__(self, api_key, api_secret, paper=True):
-        self.trading = AlpacaTradingClient
-        self.historical = AlpacaStockHistoricalDataClient
+#     def __init__(self, api_key, api_secret, paper=True):
+#         self.trading = AlpacaTradingClient
+#         self.historical = AlpacaStockHistoricalDataClient
