@@ -28,10 +28,10 @@ class AlpacaTradingClient:
         )
 
     def get_account(self):
-        self.trading_client.get_account()
+        return self.trading_client.get_account()
 
     def get_orders(self, filter):
-        self.trading_client.get_orders(filter=filter)
+        return self.trading_client.get_orders(filter=filter)
 
     def get_all_positions(self):
         return self.trading_client.get_all_positions()
@@ -40,7 +40,7 @@ class AlpacaTradingClient:
 class AlpacaStockHistoricalDataClient:
     """
     A client for retrieving historical stock data using the Alpaca API.
-    This class provides a convenient interface to fetch historical bar data (such as OHLCV)
+    This class provides a convenient interface to fetch historical bar data
     for one or more stock symbols, supporting custom date ranges, result limits, currency selection, and sorting options.
     Args:
         api_key (str): The Alpaca API key.
