@@ -12,7 +12,6 @@ import requests
 import os
 import numpy as np
 
-
 class AnalysisManager:
 
     # To analyze stock, user needs to initialize their symbols, start/end at minimum
@@ -34,54 +33,6 @@ class AnalysisManager:
         self.currency = currency
         self.daily_return: float
 
-    def __get_historical_data(self, symbol_or_symbols):
-        response_df = self.clientStockAnalysis.get_historical_data(
-            symbol_or_symbols=symbol_or_symbols,
-            start=self.start_date,
-            end=self.end_date,
-            timeframe=self.timeframe,
-            currency=self.currency,
-        )
-        return response_df
-
-    def __average_daily_return(self, symbol_or_symbols):
-        results = {}
-        stock_data = self.__get_historical_data(symbol_or_symbols=symbol_or_symbols)
-        daily_ret = stock_data.groupby("symbol")["close"].pct_change()
-        mean = daily_ret.groupby("symbol").mean().to_dict()
-        print(daily_ret.to_frame())
-        print(daily_ret.groupby("symbol").std())
-        standard_deviation = daily_ret.groupby("symbol").std().to_dict()
-        return {"mean" : mean, "std" : standard_deviation}
-
-    def expected_daily_portfolio_return(self):
-        client_portfolio = PortfolioManager(api_key=api_key, api_secret=api_secret)
-        position_weights = client_portfolio.weights_of_positions()
-        symbol_or_symbols = []
-        for pos in position_weights:
-            symbol_or_symbols.append(pos)
-        average_daily_returns = self.__average_daily_return(
-            symbol_or_symbols=symbol_or_symbols
-        )
-        weighted_mean_daily_returns = {
-            k: position_weights[k] * average_daily_returns["mean"][k]
-            for k in position_weights
-        }
-
-        weighted_std_daily_returns = {
-            k: pow(position_weights[k], 2) * pow(average_daily_returns["std"][k], 2)
-            for k in position_weights
-        }
-        sum1= sum(weighted_std_daily_returns.values())
-
-        sum_weighted_mean = sum(weighted_mean_daily_returns.values())
-        sum_weighted_std = sqrt(sum(weighted_std_daily_returns.values())).real # sum weighted standard deviation
-
-        return {
-            "mean": sum_weighted_mean,
-            "std": sum_weighted_std,
-        }
-
     @staticmethod
     # grabs the most recent US treasury's risk free rate using the 10 year
     def __fetch_risk_free_rate() -> float:
@@ -101,32 +52,61 @@ class AnalysisManager:
         most_recent_trading_date = data[0]
         ten_year_treasury_rate = most_recent_trading_date["year10"]
         return ten_year_treasury_rate
+    
+    def __get_historical_data(self, symbol_or_symbols):
+        response_df = self.clientStockAnalysis.get_historical_data(
+            symbol_or_symbols=symbol_or_symbols,
+            start=self.start_date,
+            end=self.end_date,
+            timeframe=self.timeframe,
+            currency=self.currency,
+        )
+        return response_df
+    
+    def __daily_stock_return_and_std(self, symbol_or_symbols):
+        stock_data = self.__get_historical_data(symbol_or_symbols=symbol_or_symbols)
+        daily_ret = stock_data.groupby("symbol")["close"].pct_change()
+
+        mean = daily_ret.groupby("symbol").mean().to_dict()
+        standard_deviation = daily_ret.groupby("symbol").std().to_dict()
+        return {"mean" : mean, "std" : standard_deviation}
 
     def calculate_sharpe_ratio(self, risk_rate: Optional[float] = None):
-        if risk_rate is None:
+        # weight of positions in portfolio used for grabbing portfolio positions and
+        # portfolio sharpe calculation 
+        client_portfolio = PortfolioManager(api_key=api_key, api_secret=api_secret)
+        position_weights = client_portfolio.weights_of_positions()
+        symbol_or_symbols = []
+        for pos in position_weights:
+            symbol_or_symbols.append(pos)
+        average_daily_returns = self.__daily_stock_return_and_std(
+            symbol_or_symbols=symbol_or_symbols
+        )
+        if risk_rate  is None:
             risk_rate = self.__fetch_risk_free_rate()
-        portfolio_returns = self.expected_daily_portfolio_return()
+        position_returns = average_daily_returns
         daily_risk_rate = risk_rate/(100*252)
-        excess_returns = portfolio_returns["mean"] - daily_risk_rate
-        print(excess_returns)
-        sharpe_ratio = excess_returns / portfolio_returns["std"]
-        return sharpe_ratio
-
+        annual_position_sharpe = {}
+        annual_portfolio_sharpe = 0
+        for k in position_returns["mean"]:
+            annual_position_sharpe[k] = ((position_returns['mean'][k] - daily_risk_rate)/(position_returns['std'][k]) * sqrt(252)).real
+            annual_portfolio_sharpe += annual_position_sharpe[k]*position_weights[k]
+        return {"positions_sharpe": annual_position_sharpe, "portfolio_sharpe": annual_portfolio_sharpe} 
+    
 if __name__ == "__main__":
     load_dotenv()
     api_key = os.getenv("APCA_KEY")
     api_secret = os.getenv("APCA_SECRET")
-    # You need to provide required arguments for AnalysisManager initialization
-    # For demonstration, using example values for missing arguments
-    symbols = "AAPL"  # Example symbol list
     today = date.today()
-    five_years_ago = today - timedelta(weeks=520)
+    ten_years_ago = today - timedelta(weeks=520)
     today = today.strftime("%Y-%m-%d")
-    five_years_ago = five_years_ago.strftime("%Y-%m-%d")
+    ten_years_ago = ten_years_ago.strftime("%Y-%m-%d")
     client = AnalysisManager(
         api_key=api_key,
         api_secret=api_secret,
-        start=five_years_ago,
+        start=ten_years_ago,
         end=today,
     )
-    print(client.calculate_sharpe_ratio())
+    sharpe = client.calculate_sharpe_ratio()
+    print(sharpe['positions_sharpe'])
+    print(sharpe['portfolio_sharpe'])
