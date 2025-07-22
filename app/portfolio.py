@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from dataclasses import dataclass
 import os
 import sigfig
+import sigfig
 
 @dataclass
 class Position:
@@ -11,12 +12,15 @@ class Position:
     avg_entry_price: float
     current_price: float
     market_value: float
-
+    market_value: float
 
 class PortfolioManager:
 
     def __init__(self, api_key, api_secret):
         self.client = AlpacaTradingClient(api_key=api_key, api_secret=api_secret)
+
+    def account_details(self):
+        return self.client.get_account()
 
     def account_details(self):
         return self.client.get_account()
@@ -61,7 +65,6 @@ class PortfolioManager:
         }
 
         return positions_weights
-
 
 if __name__ == "__main__":
     load_dotenv()
