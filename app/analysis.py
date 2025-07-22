@@ -85,9 +85,6 @@ class AnalysisManager:
             logger.error(f'Error fetching risk-free rate: {e}')
             return 0.04
     
-    # def _get_historical_data_batch(self, symbols: List[str]):
-
-    
     def _get_historical_data(self, symbol_or_symbols):
         cache_key = f"{'-'.join(sorted(symbol_or_symbols))}_{self.start_date}_{self.end_date}"
 

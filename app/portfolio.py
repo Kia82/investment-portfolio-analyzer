@@ -62,7 +62,6 @@ class PortfolioManager:
 
         return positions_weights
 
-
 if __name__ == "__main__":
     load_dotenv()
     api_key = os.getenv("APCA_KEY")
