@@ -72,4 +72,3 @@ if __name__ == "__main__":
     api_secret = os.getenv("APCA_SECRET")
     manager = PortfolioManager(api_key, api_secret)
     print(manager.portfolio_positions())
-    print(manager.portfolio_positions())
