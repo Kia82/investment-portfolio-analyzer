@@ -2,8 +2,10 @@ from cmath import sqrt
 from typing import Optional
 from alpaca_api import AlpacaStockHistoricalDataClient
 from portfolio import PortfolioManager
+from portfolio import PortfolioManager
 from dotenv import load_dotenv
 from alpaca.data.timeframe import TimeFrame
+from datetime import date, timedelta
 from datetime import date, timedelta
 from alpaca.common.enums import SupportedCurrencies
 from functools import lru_cache
