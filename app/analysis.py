@@ -45,8 +45,6 @@ class AnalysisManager:
         self._historical_data_timestamp = None
         self.portfolio_manager = PortfolioManager(api_key=api_key, api_secret=api_secret)
 
-
-
     # grabs the most recent US treasury's risk free rate using the 10 year
     def _get_risk_free_rate(self) -> float:
         current_time = pandas.Timestamp.now()
