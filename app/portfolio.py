@@ -1,8 +1,7 @@
-from alpaca_api import AlpacaTradingClient
+from app.api.alpaca_api import AlpacaTradingClient
 from dotenv import load_dotenv
 from dataclasses import dataclass
 import os
-import sigfig
 import sigfig
 
 @dataclass
@@ -18,9 +17,6 @@ class PortfolioManager:
 
     def __init__(self, api_key, api_secret):
         self.client = AlpacaTradingClient(api_key=api_key, api_secret=api_secret)
-
-    def account_details(self):
-        return self.client.get_account()
 
     def account_details(self):
         return self.client.get_account()
@@ -58,10 +54,9 @@ class PortfolioManager:
         invested_equity = equity - free_cash
         if invested_equity == 0:
             return {}
-        
         positions = self.portfolio_positions()
         positions_weights = {
-            pos.symbol: sigfig.round(pos.market_value / invested_equity, sigfigs=3) for pos in positions
+            pos.symbol: pos.market_value / invested_equity for pos in positions
         }
 
         return positions_weights
