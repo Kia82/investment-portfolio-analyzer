@@ -1,4 +1,5 @@
 from app.api.alpaca_api import AlpacaTradingClient
+from app.api.alpaca_api import AlpacaTradingClient
 from dotenv import load_dotenv
 from dataclasses import dataclass
 import os
@@ -55,6 +56,7 @@ class PortfolioManager:
             return {}
         positions = self.portfolio_positions()
         positions_weights = {
+            pos.symbol: pos.market_value / invested_equity for pos in positions
             pos.symbol: pos.market_value / invested_equity for pos in positions
         }
 
