@@ -18,7 +18,6 @@ class DataCache:
             del self._cache[key]
             del self._timestamps[key]
             return None
-        # print(f"cached! {self._cache[key]}")
         return self._cache[key]
 
     def set(self, key: str, value: Any):
