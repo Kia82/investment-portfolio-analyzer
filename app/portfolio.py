@@ -57,7 +57,6 @@ class PortfolioManager:
         positions = self.portfolio_positions()
         positions_weights = {
             pos.symbol: pos.market_value / invested_equity for pos in positions
-            pos.symbol: pos.market_value / invested_equity for pos in positions
         }
 
         return positions_weights
