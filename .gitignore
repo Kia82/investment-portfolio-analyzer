@@ -3,6 +3,7 @@
 /montecarlo.egg-info
 /build
 /app/__pycache__/
+.pycache_global
 
 # Files
 montecarlo.cpython-311-x86_64-linux-gnu.so
