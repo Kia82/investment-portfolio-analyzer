@@ -5,8 +5,9 @@ from alpaca.data.requests import StockBarsRequest
 from alpaca.data.historical import StockHistoricalDataClient
 from alpaca.data.timeframe import TimeFrame
 from alpaca.common.enums import SupportedCurrencies
+from .base import Base
 
-class AlpacaTradingClient:
+class AlpacaTradingClient(Base):
     """
     AlpacaClient provides a wrapper around the Alpaca TradingClient for interacting with the Alpaca API.
     Attributes:
@@ -22,22 +23,41 @@ class AlpacaTradingClient:
             Retrieves all open positions from Alpaca.
     """
 
-    def __init__(self, api_key, api_secret, paper=True):
+    def __init__(self, api_key, api_secret, cache_ttl: int = 60, paper=True):
+        super().__init__(cache_ttl=cache_ttl)
         self.trading_client = TradingClient(
             api_key=api_key, secret_key=api_secret, paper=paper
         )
 
     def get_account(self):
-        return self.trading_client.get_account()
+        cache_key = self._cache_key("account")
+        cached_data = self.cache.get(cache_key)
+        if cached_data is not None:
+            return cached_data
+        get_account = self.trading_client.get_account()
+        self.cache.set(cache_key, get_account)
 
-    def get_orders(self, filter):
-        return self.trading_client.get_orders(filter=filter)
+        return get_account
+
+    def get_orders(self, orders_filter):
+        cache_key = self._cache_key("orders" + orders_filter)
+        cached_data = self.cache.get(cache_key)
+        if cached_data is not None:
+            return cached_data
+        get_orders = self.trading_client.get_orders(filter=orders_filter)
+        self.cache.set(cache_key, get_orders)
+        return get_orders
 
     def get_all_positions(self):
-        return self.trading_client.get_all_positions()
+        cache_key = self._cache_key("positions")
+        cached_data = self.cache.get(cache_key)
+        if cached_data is not None:
+            return cached_data
+        all_positions = self.trading_client.get_all_positions()
+        self.cache.set(cache_key, all_positions)
+        return all_positions
 
-
-class AlpacaStockHistoricalDataClient:
+class AlpacaStockHistoricalDataClient(Base):
     """
     A client for retrieving historical stock data using the Alpaca API.
     This class provides a convenient interface to fetch historical bar data
@@ -58,7 +78,8 @@ class AlpacaStockHistoricalDataClient:
                 The historical bar data as returned by the Alpaca API.
     """
 
-    def __init__(self, api_key, api_secret):
+    def __init__(self, api_key, api_secret, cache_ttl=60):
+        super().__init__(cache_ttl=cache_ttl)
         self.historical_data = StockHistoricalDataClient(
             api_key=api_key, secret_key=api_secret
         )
@@ -71,6 +92,19 @@ class AlpacaStockHistoricalDataClient:
         timeframe: TimeFrame,
         currency: SupportedCurrencies
     ):
+        """
+        Fetches historical bar data for the specified symbol(s).
+
+        Note:
+            The result of `.df` is cached for `cache_ttl` seconds. If the underlying API data changes,
+            the cache may become stale until the TTL expires. To force cache invalidation, adjust the `cache_ttl`
+            parameter or clear the cache manually.
+        """
+        cache_key = self._cache_key(str(symbol_or_symbols), str(start), str(end), str(timeframe), str(currency))
+        cache = self.cache.get(cache_key)
+        if cache is not None:
+            return cache
+        
         request_params = StockBarsRequest(
             symbol_or_symbols=symbol_or_symbols,
             start=start,
@@ -78,25 +112,7 @@ class AlpacaStockHistoricalDataClient:
             timeframe=timeframe,
             currency=currency
         )
-        return self.historical_data.get_stock_bars(request_params=request_params).df
 
-
-# class AlpacaClientFacade:
-#     """
-#     A facade class for interacting with Alpaca's trading and historical data APIs.
-
-#     This class simplifies the initialization and usage of Alpaca's Trading and Historical Data clients.
-
-#     Attributes:
-#         trading (AlpacaTradingClient): The client for trading operations.
-#         historical (AlpacaStockHistoricalDataClient): The client for accessing historical stock data.
-
-#     Args:
-#         api_key (str): The API key for Alpaca authentication.
-#         api_secret (str): The API secret for Alpaca authentication.
-#         paper (bool, optional): Whether to use the paper trading environment. Defaults to True.
-#     """
-
-#     def __init__(self, api_key, api_secret, paper=True):
-#         self.trading = AlpacaTradingClient
-#         self.historical = AlpacaStockHistoricalDataClient
+        get_stock_bars = self.historical_data.get_stock_bars(request_params=request_params).df
+        self.cache.set(cache_key, get_stock_bars)
+        return get_stock_bars
