@@ -1,19 +1,15 @@
-from cmath import sqrt
-from typing import Optional
-from app.api.alpaca_api import AlpacaStockHistoricalDataClient
-from api.metrics.sharpe_ratio import SharpeRatio
-from api.metrics.risk_free_rate import RiskFreeRate
-from portfolio import PortfolioManager
-from portfolio import PortfolioManager
-from dotenv import load_dotenv
-from alpaca.data.timeframe import TimeFrame
-from datetime import date, timedelta
-from datetime import date, timedelta
-from alpaca.common.enums import SupportedCurrencies
-import os
 import logging
-import numpy as np
-
+import os
+from datetime import date, timedelta
+from math import sqrt
+from typing import Optional
+from dotenv import load_dotenv
+from alpaca.common.enums import SupportedCurrencies
+from alpaca.data.timeframe import TimeFrame
+from app.api.alpaca_api import AlpacaStockHistoricalDataClient
+from api.metrics.risk_free_rate import RiskFreeRate
+from api.metrics.sharpe_ratio import SharpeRatio
+from portfolio import PortfolioManager
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -118,10 +114,7 @@ class AnalysisManager:
     
     def sortino_ratio(self, benchmark: Optional[float] = None):
         pass
-        # if benchmark is None:
-        # risk_rate = self._get_daily_risk_free_rate()
     
-
 if __name__ == "__main__":
     load_dotenv()
     api_key = os.getenv("APCA_KEY")
