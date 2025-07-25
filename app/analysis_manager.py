@@ -6,11 +6,17 @@ from typing import Optional
 from dotenv import load_dotenv
 from alpaca.common.enums import SupportedCurrencies
 from alpaca.data.timeframe import TimeFrame
+<<<<<<< HEAD
 from api.alpaca_api import AlpacaStockHistoricalDataClient
 from api.metrics.risk_free_rate import RiskFreeRate
 from api.metrics.sharpe import SharpeRatio
 from api.metrics.sortino import SortinoRatio
 # from api.metrics.treynor import TreynorRatio
+=======
+from app.api.alpaca_api import AlpacaStockHistoricalDataClient
+from api.metrics.risk_free_rate import RiskFreeRate
+from api.metrics.sharpe_ratio import SharpeRatio
+>>>>>>> dev
 from portfolio import PortfolioManager
 
 logging.basicConfig(level=logging.INFO)
