@@ -6,9 +6,17 @@ from typing import Optional
 from dotenv import load_dotenv
 from alpaca.common.enums import SupportedCurrencies
 from alpaca.data.timeframe import TimeFrame
+<<<<<<< HEAD
+from api.alpaca_api import AlpacaStockHistoricalDataClient
+from api.metrics.risk_free_rate import RiskFreeRate
+from api.metrics.sharpe import SharpeRatio
+from api.metrics.sortino import SortinoRatio
+# from api.metrics.treynor import TreynorRatio
+=======
 from app.api.alpaca_api import AlpacaStockHistoricalDataClient
 from api.metrics.risk_free_rate import RiskFreeRate
 from api.metrics.sharpe_ratio import SharpeRatio
+>>>>>>> dev
 from portfolio import PortfolioManager
 
 logging.basicConfig(level=logging.INFO)
@@ -38,8 +46,11 @@ class AnalysisManager:
         self.cache_ttl = cache_ttl # remove once migration is done
 
         self.portfolio_manager = PortfolioManager(api_key=api_key, api_secret=api_secret)
-        self._sharpe_ratio = SharpeRatio(cache_ttl=cache_ttl)
         self._risk_free_rate = RiskFreeRate(cache_ttl=cache_ttl*48) # equivalent to  2 days 
+        
+        # Metrics
+        self._sharpe_ratio = SharpeRatio(cache_ttl=cache_ttl)
+        self._sortino_ratio = SortinoRatio(cache_ttl=cache_ttl)
 
     # grabs the most recent US treasury's risk free rate using the 10 year
     
@@ -76,44 +87,66 @@ class AnalysisManager:
             logger.warning("No positions found in portfolio")
             return {"positions_sharpe": positions_sharpe, "portfolio_sharpe": portfolio_sharpe}
         positions_data = self._get_historical_data(symbols)
-    
         positions_sharpe = self._sharpe_ratio.compute(positions_data=positions_data,symbols=symbols, daily_risk_rate=daily_risk_rate)
         
         for k in position_weights:
             portfolio_sharpe += positions_sharpe[k] * position_weights[k] 
         return {"positions_sharpe": positions_sharpe, "portfolio_sharpe": portfolio_sharpe} 
     
-    def batch_calculate_metrics(self, symbols):
-        """Calculate multiple metrics in a single batch operation"""
-        return_stats = self._calculate_returns_and_stats_vectorized(symbols)
-        risk_rate = self._get_daily_risk_free_rate()
+    # def batch_calculate_metrics(self, symbols):
+    #     """Calculate multiple metrics in a single batch operation"""
+    #     return_stats = self._calculate_returns_and_stats_vectorized(symbols)
+    #     risk_rate = self._get_daily_risk_free_rate()
         
-        results = {}
-        daily_risk_rate = risk_rate
-        sqrt_252 = sqrt(252).real
+    #     results = {}
+    #     daily_risk_rate = risk_rate
+    #     sqrt_252 = sqrt(252).real
         
-        for symbol in symbols:
-            mean_return = return_stats["mean"].get(symbol, 0)
-            std_return = return_stats["std"].get(symbol, 1)
+    #     for symbol in symbols:
+    #         mean_return = return_stats["mean"].get(symbol, 0)
+    #         std_return = return_stats["std"].get(symbol, 1)
             
-            if std_return > 0:
-                sharpe = ((mean_return - daily_risk_rate) / std_return) * sqrt_252
-            else:
-                logger.error(ValueError("Standard deviation of returns is zero; Sharpe Ratio is undefined."))
-                raise
+    #         if std_return > 0:
+    #             sharpe = ((mean_return - daily_risk_rate) / std_return) * sqrt_252
+    #         else:
+    #             logger.error(ValueError("Standard deviation of returns is zero; Sharpe Ratio is undefined."))
+    #             raise
             
-            results[symbol] = {
-                "mean_return": mean_return,
-                "std_return": std_return,
-                "sharpe_ratio": sharpe,
-                "annualized_return": mean_return * 252,
-                "annualized_volatility": std_return * sqrt_252
-            }
+    #         results[symbol] = {
+    #             "mean_return": mean_return,
+    #             "std_return": std_return,
+    #             "sharpe_ratio": sharpe,
+    #             "annualized_return": mean_return * 252,
+    #             "annualized_volatility": std_return * sqrt_252
+    #         }
             
-        return results
+    #     return results
     
-    def sortino_ratio(self, benchmark: Optional[float] = None):
-        pass
+    def calculate_sortino_ratio(self, risk_rate: Optional[float] = None):
+        """Calculates the sortino ratio with the chosen risk free rate
+        
+        Args:
+            risk_rate: the yearly risk free rate/benchmark rate
+        """
+        positions_sortino = {}
+        portfolio_sortino = 0
+
+        # weight of positions in portfolio used for grabbing portfolio positions and
+        # portfolio sharpe calculation 
+        position_weights = self.portfolio_manager.weights_of_positions()
+        daily_risk_rate = risk_rate/252 if risk_rate else self.calculate_risk_free_rate()
+
+        symbols = list(position_weights.keys())
+        if not symbols:
+            logger.warning("No positions found in portfolio")
+            return {"positions_sharpe": positions_sortino, "portfolio_sharpe": portfolio_sortino}
+
+        positions_data = self._get_historical_data(symbols)
+        positions_sortino = self._sortino_ratio.compute(positions_data=positions_data,symbols=symbols, daily_risk_rate=daily_risk_rate)
+
+        for k in position_weights:
+            portfolio_sortino += position_weights[k] * positions_sortino[k]
+        return {"positions_sortino": positions_sortino, "portfolio_sortino": portfolio_sortino} 
     
 if __name__ == "__main__":
     load_dotenv()
@@ -121,16 +154,16 @@ if __name__ == "__main__":
     api_secret = os.getenv("APCA_SECRET")
     today = date.today()
     ten_years_ago = today - timedelta(weeks=520)
-    today = today.strftime("%Y-%m-%d")
-    ten_years_ago = ten_years_ago.strftime("%Y-%m-%d")
+    today_formatted = today.strftime("%Y-%m-%d")
+    ten_years_ago_formatted = ten_years_ago.strftime("%Y-%m-%d")
 
     client = AnalysisManager(
         api_key=api_key,
         api_secret=api_secret,
-        start=ten_years_ago,
-        end=today,
+        start=ten_years_ago_formatted,
+        end=today_formatted,
     )
-    for i in range(100):
-        sharpe = client.calculate_sharpe_ratio()
-        print(sharpe)
 
+    for i in range(100):
+        print(client.calculate_sortino_ratio())
+        print(client.calculate_sharpe_ratio())
