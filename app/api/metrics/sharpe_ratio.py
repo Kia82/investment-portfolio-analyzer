@@ -7,13 +7,18 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class SharpeRatio(BaseMetric):
-    """a couple things to note, positions_data accepts only a specific type of data frame (get_stock_bars from alpaca-py sdk).
-        You can see how we use it in the private function _calculate_returns_and_stats_vectorized """
-
+   
     def __init__(self, cache_ttl: int = 3600):
         super().__init__(cache_ttl=cache_ttl)
 
     def _calculate_stats_dict(self, positions_data: pd.DataFrame):
+        """
+        Given the stock data of each ticker, calculates the standard deviation and mean of each symbol's close 
+
+        Note:
+          positions_data accepts only a specific type of data frame (get_stock_bars from alpaca-py sdk).
+        You can see how we use it in the private function _calculate_returns_and_stats_vectorized
+        """
         daily_returns = positions_data.groupby("symbol")["close"].pct_change().dropna()
         mean = daily_returns.groupby("symbol").mean().to_dict()
         standard_deviation = daily_returns.groupby("symbol").std().to_dict()
@@ -34,8 +39,8 @@ class SharpeRatio(BaseMetric):
                 sqrt_252 = sqrt(252).real
                 sharpe = ((mean_return-daily_risk_rate)/std_return) * sqrt_252
             else:
-                logger.error(ValueError("Standard deviation of returns is zero; Sharpe Ratio is undefined."))
-                raise
+                logger.error("Standard deviation of returns is zero; Sharpe Ratio is undefined.")
+                raise ValueError("Standard deviation of returns is zero; Sharpe Ratio is undefined.")
             results[symbol] = sharpe
         self.cache.set(cache_key, results)
         return results

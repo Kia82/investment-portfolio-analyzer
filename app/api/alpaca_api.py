@@ -39,14 +39,14 @@ class AlpacaTradingClient(Base):
 
         return get_account
 
-    def get_orders(self, filter):
-        cache_key = self._cache_key("orders")
+    def get_orders(self, orders_filter):
+        cache_key = self._cache_key("orders" + orders_filter)
         cached_data = self.cache.get(cache_key)
         if cached_data is not None:
             return cached_data
-        get_orders = self.trading_client.get_orders(filer=filter)
+        get_orders = self.trading_client.get_orders(filter=orders_filter)
         self.cache.set(cache_key, get_orders)
-        return self.trading_client.get_orders(filter=filter)
+        return get_orders
 
     def get_all_positions(self):
         cache_key = self._cache_key("positions")
@@ -78,7 +78,7 @@ class AlpacaStockHistoricalDataClient(Base):
                 The historical bar data as returned by the Alpaca API.
     """
 
-    def __init__(self,cache_ttl, api_key, api_secret):
+    def __init__(self, api_key, api_secret, cache_ttl=60):
         super().__init__(cache_ttl=cache_ttl)
         self.historical_data = StockHistoricalDataClient(
             api_key=api_key, secret_key=api_secret
@@ -92,7 +92,15 @@ class AlpacaStockHistoricalDataClient(Base):
         timeframe: TimeFrame,
         currency: SupportedCurrencies
     ):
-        cache_key = self._cache_key(*symbol_or_symbols,start)
+        """
+        Fetches historical bar data for the specified symbol(s).
+
+        Note:
+            The result of `.df` is cached for `cache_ttl` seconds. If the underlying API data changes,
+            the cache may become stale until the TTL expires. To force cache invalidation, adjust the `cache_ttl`
+            parameter or clear the cache manually.
+        """
+        cache_key = self._cache_key(str(symbol_or_symbols), str(start), str(end), str(timeframe), str(currency))
         cache = self.cache.get(cache_key)
         if cache is not None:
             return cache
