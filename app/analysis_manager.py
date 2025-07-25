@@ -121,12 +121,6 @@ class AnalysisManager:
         # if benchmark is None:
         # risk_rate = self._get_daily_risk_free_rate()
     
-    def clear_cache(self):  
-        """Clear all cached data"""
-        # self._risk_free_rate_cache = None
-        # self._risk_free_rate_timestamp = None
-        # self._portfolio_weights_cache = None
-        # self._portfolio_weights_timestamp = None
 
 if __name__ == "__main__":
     load_dotenv()
