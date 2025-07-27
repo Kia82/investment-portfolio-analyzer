@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from alpaca.common.enums import SupportedCurrencies
 from alpaca.data.timeframe import TimeFrame
 from api.alpaca_api import AlpacaStockHistoricalDataClient
-from api.metrics.risk_free_rate import RiskFreeRate
+from api.metrics.risk_free_rate import RiskFreeRate 
 from api.metrics.sharpe import SharpeRatio
 from api.metrics.sortino import SortinoRatio
 # from api.metrics.treynor import TreynorRatio
@@ -117,7 +117,8 @@ class AnalysisManager:
     #     return results
     
     def calculate_sortino_ratio(self, risk_rate: Optional[float] = None):
-        """Calculates the sortino ratio with the chosen risk free rate
+        """
+        Calculates the sortino ratio with the chosen risk free rate
         
         Args:
             risk_rate: the yearly risk free rate/benchmark rate

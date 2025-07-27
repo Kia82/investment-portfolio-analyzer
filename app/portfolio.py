@@ -1,5 +1,5 @@
-from app.api.alpaca_api import AlpacaTradingClient
-from app.api.alpaca_api import AlpacaTradingClient
+from api.alpaca_api import AlpacaTradingClient
+from api.alpaca_api import AlpacaTradingClient
 from dotenv import load_dotenv
 from dataclasses import dataclass
 import os

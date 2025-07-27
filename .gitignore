@@ -1,11 +1,11 @@
 # Folders
 /venv
-/montecarlo.egg-info
+app/investment_portfolio_analyzer.egg-info
 /build
 /app/__pycache__/
 .pycache_global
-
+invest
 # Files
-montecarlo.cpython-311-x86_64-linux-gnu.so
 .vscode
 .env
+/app/montecarlo.cpython-311-x86_64-linux-gnu.so

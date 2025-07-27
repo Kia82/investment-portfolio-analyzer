@@ -1,6 +1,5 @@
 from cmath import sqrt
 from .base_metric import BaseMetric
-import numpy as np
 import logging
 import pandas as pd
 logging.basicConfig(level=logging.INFO)

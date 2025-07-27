@@ -1,4 +1,4 @@
-from app.utils.caching import DataCache
+from utils.caching import DataCache
 
 class Base:
     def __init__(self, cache_ttl: int):
