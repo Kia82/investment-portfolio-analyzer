@@ -10,7 +10,7 @@ class SortinoRatio(BaseMetric):
     def __init__(self, cache_ttl: int = 3600):
         super().__init__(cache_ttl=cache_ttl)
 
-    def _calculate_stats(self, positions_data: pd.DataFrame):
+    def _calculate_stats(positions_data: pd.DataFrame):
         """
         Given the stock data of each ticker, calculates the standard deviation and mean of each symbol's close 
 

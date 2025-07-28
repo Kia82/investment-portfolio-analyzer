@@ -25,3 +25,5 @@ pybind11           # For C++ and Python bindings
 
 # Optional testing
 pytest             # For writing unit tests
+sigfig
+montecarlo

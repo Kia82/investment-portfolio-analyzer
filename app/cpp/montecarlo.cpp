@@ -10,21 +10,21 @@
 using namespace boost::accumulators;
 
 struct Result {
-    double meanPortfolioValue;
-    double variance;
-    double pSquareQuantile;
+    float meanPortfolioValue;
+    float variance;
+    float pSquareQuantile;
 };
 
-Result runSimulation(double principal, double meanReturn, double annualVolatility, int years, int simulations) {
+Result runSimulation(float principal, float meanReturn, float annualVolatility, int years, int simulations) {
     boost::mt19937 rng(static_cast<unsigned int>(std::time(0)));
     boost::random::normal_distribution<> norm_dist(meanReturn, annualVolatility);
     boost::variate_generator<boost::mt19937&, boost::random::normal_distribution<>> rand_return(rng, norm_dist);
 
-    accumulator_set<double, features<tag::mean, tag::variance, tag::p_square_quantile>> acc(quantile_probability = 0.05);
+    accumulator_set<float, features<tag::mean, tag::variance, tag::p_square_quantile>> acc(quantile_probability = 0.05);
     for (int i = 0; i< simulations; i++) {
-        double value = principal;
+        float value = principal;
         for(int y = 0; y < years; y++) {
-            double yearly_return = rand_return();
+            float yearly_return = rand_return();
             value *= (1.0 + yearly_return);
         }
         acc(value);
@@ -35,15 +35,20 @@ Result runSimulation(double principal, double meanReturn, double annualVolatilit
     res.variance = variance(acc);
     res.pSquareQuantile = p_square_quantile(acc);
     return res;
-
 }
 
 // test function for easy debugging    
-double add(double a, double b) {
+float add(float a, float b) {
     return a + b;
 }
 
 PYBIND11_MODULE(montecarlo, m) {
+    pybind11::class_<Result>(m, "Result")
+        .def(pybind11::init<float, float, float>())
+        .def_readwrite("meanPortfolioValue", &Result::meanPortfolioValue)
+        .def_readwrite("variance", &Result::variance)
+        .def_readwrite("pSquareQuantile", &Result::pSquareQuantile);
+
     m.def("runSimulation", &runSimulation, "Runs a monte carlo simulation with supplied parameters");
     m.def("add", &add, "A function that adds two numbers");
 }

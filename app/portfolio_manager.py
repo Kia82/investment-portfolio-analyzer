@@ -3,7 +3,6 @@ from api.alpaca_api import AlpacaTradingClient
 from dotenv import load_dotenv
 from dataclasses import dataclass
 import os
-
 @dataclass
 class Position:
     symbol: str

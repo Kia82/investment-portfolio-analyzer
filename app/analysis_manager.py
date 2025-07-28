@@ -11,8 +11,9 @@ from api.metrics.risk_free_rate import RiskFreeRate
 from api.metrics.sharpe import SharpeRatio
 from api.metrics.sortino import SortinoRatio
 # from api.metrics.treynor import TreynorRatio
-from portfolio import PortfolioManager
-
+from portfolio_manager import PortfolioManager
+from api.simulation.monte_carlo_manager import MonteCarloManager
+# from app.api.alpaca_api import AlpacaTradingClient
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -87,6 +88,49 @@ class AnalysisManager:
             portfolio_sharpe += positions_sharpe[k] * position_weights[k] 
         return {"positions_sharpe": positions_sharpe, "portfolio_sharpe": portfolio_sharpe} 
     
+    def calculate_sortino_ratio(self, risk_rate: Optional[float] = None):
+        """
+        Calculates the sortino ratio with the chosen risk free rate
+        
+        Args:
+            risk_rate: the yearly risk free rate/benchmark rate
+        """
+
+        positions_sortino = {}
+        portfolio_sortino = 0
+
+        # weight of positions in portfolio used for grabbing portfolio positions and
+        # portfolio sharpe calculation 
+        position_weights = self.portfolio_manager.weights_of_positions()
+        daily_risk_rate = risk_rate/252 if risk_rate else self.calculate_risk_free_rate()
+
+        symbols = list(position_weights.keys())
+        if not symbols:
+            logger.warning("No positions found in portfolio")
+            return {"positions_sharpe": positions_sortino, "portfolio_sharpe": portfolio_sortino}
+
+        positions_data = self._get_historical_data(symbols)
+        positions_sortino = self._sortino_ratio.compute(positions_data=positions_data,symbols=symbols, daily_risk_rate=daily_risk_rate)
+
+        for k in position_weights:
+            portfolio_sortino += position_weights[k] * positions_sortino[k]
+        return {"positions_sortino": positions_sortino, "portfolio_sortino": portfolio_sortino}
+    
+    def run_monte_carlo_simulation(self,years=5, simulations: int=100):
+        """ runs a monte carlo simulation"""
+
+        principal = self.portfolio_manager.account_details().last_equity
+        position_weights = self.portfolio_manager.weights_of_positions()
+        symbols = list(position_weights.keys())
+        historical_positions_data = self._get_historical_data(symbols)
+
+        monte_carlo_sim = MonteCarloManager.prepare_and_run_sim(principal=principal,years=years, 
+                                              simulations=simulations, 
+                                              position_weights=position_weights,
+                                              historical_positions_data=historical_positions_data)
+        return monte_carlo_sim
+
+
     # def batch_calculate_metrics(self, symbols):
     #     """Calculate multiple metrics in a single batch operation"""
     #     return_stats = self._calculate_returns_and_stats_vectorized(symbols)
@@ -115,33 +159,7 @@ class AnalysisManager:
     #         }
             
     #     return results
-    
-    def calculate_sortino_ratio(self, risk_rate: Optional[float] = None):
-        """
-        Calculates the sortino ratio with the chosen risk free rate
-        
-        Args:
-            risk_rate: the yearly risk free rate/benchmark rate
-        """
-        positions_sortino = {}
-        portfolio_sortino = 0
 
-        # weight of positions in portfolio used for grabbing portfolio positions and
-        # portfolio sharpe calculation 
-        position_weights = self.portfolio_manager.weights_of_positions()
-        daily_risk_rate = risk_rate/252 if risk_rate else self.calculate_risk_free_rate()
-
-        symbols = list(position_weights.keys())
-        if not symbols:
-            logger.warning("No positions found in portfolio")
-            return {"positions_sharpe": positions_sortino, "portfolio_sharpe": portfolio_sortino}
-
-        positions_data = self._get_historical_data(symbols)
-        positions_sortino = self._sortino_ratio.compute(positions_data=positions_data,symbols=symbols, daily_risk_rate=daily_risk_rate)
-
-        for k in position_weights:
-            portfolio_sortino += position_weights[k] * positions_sortino[k]
-        return {"positions_sortino": positions_sortino, "portfolio_sortino": portfolio_sortino} 
     
 if __name__ == "__main__":
     load_dotenv()
@@ -158,7 +176,15 @@ if __name__ == "__main__":
         start=ten_years_ago_formatted,
         end=today_formatted,
     )
+    result = client.run_monte_carlo_simulation()
+    
+    mean_portfolio_value = result.meanPortfolioValue
+    variance = result.variance
+    p_square_quantile = result.pSquareQuantile
 
-    for i in range(100):
-        print(client.calculate_sortino_ratio())
-        print(client.calculate_sharpe_ratio())
+    print("Mean Portfolio Value:", int(mean_portfolio_value))
+    print("Variance:", int(sqrt(variance)))
+    print("P-Square Quantile:", int(p_square_quantile))
+    # for i in range(100):
+    #     print(client.calculate_sortino_ratio())
+    #     print(client.calculate_sharpe_ratio())

@@ -5,6 +5,7 @@ app/investment_portfolio_analyzer.egg-info
 /app/__pycache__/
 .pycache_global
 invest
+/dist
 # Files
 .vscode
 .env

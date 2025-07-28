@@ -3,15 +3,16 @@ from .base_metric import BaseMetric
 import numpy as np
 import logging
 import pandas as pd
+from api.simple_stat_calculations import SimpleStatCalculations
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class SharpeRatio(BaseMetric):
+class SharpeRatio(BaseMetric, SimpleStatCalculations):
    
     def __init__(self, cache_ttl: int = 3600):
         super().__init__(cache_ttl=cache_ttl)
 
-    def _calculate_stats_dict(self, positions_data: pd.DataFrame):
+    def _calculate_stats_dict(positions_data: pd.DataFrame):
         """
         Given the stock data of each ticker, calculates the standard deviation and mean of each symbol's close 
 
@@ -19,11 +20,11 @@ class SharpeRatio(BaseMetric):
           positions_data accepts only a specific type of data frame (get_stock_bars from alpaca-py sdk).
         You can see how we use it in the private function _calculate_returns_and_stats_vectorized
         """
-        daily_returns = positions_data.groupby("symbol")["close"].pct_change().dropna()
-        mean = daily_returns.groupby("symbol").mean().to_dict()
-        standard_deviation = daily_returns.groupby("symbol").std().to_dict()
-        return {"mean" : mean, "std" : standard_deviation}
-
+        simple_stat_calculations = SimpleStatCalculations(positions_data=positions_data)
+        mean = simple_stat_calculations.calculate_mean()
+        std = simple_stat_calculations.calculate_std()
+        return { 'mean': mean, 'std': std }
+    
     def compute(self, positions_data, symbols, daily_risk_rate: float = 0.000119):
         cache_key = self._cache_key(*symbols, risk_rate=daily_risk_rate)
         cached_result = self.cache.get(cache_key)
