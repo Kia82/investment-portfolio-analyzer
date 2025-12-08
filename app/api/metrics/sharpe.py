@@ -12,6 +12,7 @@ class SharpeRatio(BaseMetric, SimpleStatCalculations):
     def __init__(self, cache_ttl: int = 3600):
         super().__init__(cache_ttl=cache_ttl)
 
+    @staticmethod
     def _calculate_stats_dict(positions_data: pd.DataFrame):
         """
         Given the stock data of each ticker, calculates the standard deviation and mean of each symbol's close 
@@ -20,7 +21,7 @@ class SharpeRatio(BaseMetric, SimpleStatCalculations):
           positions_data accepts only a specific type of data frame (get_stock_bars from alpaca-py sdk).
         You can see how we use it in the private function _calculate_returns_and_stats_vectorized
         """
-        simple_stat_calculations = SimpleStatCalculations(positions_data=positions_data)
+        simple_stat_calculations = SimpleStatCalculations(positions_data)
         mean = simple_stat_calculations.calculate_mean()
         std = simple_stat_calculations.calculate_std()
         return { 'mean': mean, 'std': std }
