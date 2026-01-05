@@ -1,4 +1,8 @@
 from utils.caching import DataCache
+import logging
+logger = logger = logging.getLogger(__name__)
+
+logging.basicConfig(level=logging.INFO)
 
 class Base:
     def __init__(self, cache_ttl: int):

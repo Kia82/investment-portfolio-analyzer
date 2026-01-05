@@ -10,13 +10,13 @@ build-backend = "setuptools.build_meta"
 name = "investment-portfolio-analyzer"
 version = "0.0.1"
 description = "A Python/C++ hybrid package for portfolio analysis"
-readme = README.md
+readme = "README.md"
 dependencies = [
     "alpaca-py",
     "pandas",
     "python-dotenv",
     "numpy",
-    "pybind11".
+    "pybind11"
 ]
 
 [tool.setuptools]

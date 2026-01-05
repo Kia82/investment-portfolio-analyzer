@@ -20,6 +20,9 @@ def main():
                              end=today_formatted)
     
     print(client.calculate_sharpe_ratio())
+    print(client.calculate_sortino_ratio())
+    print(client.calculate_treynor_ratio())
+    print(montecarlo.add(i=1,j=4))
     pass
 
 if __name__ == "__main__":

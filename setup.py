@@ -1,19 +1,16 @@
-from setuptools import find_packages, setup
-from pybind11.setup_helpers import Pybind11Extension, build_ext
-
-"""
-For the purposes of setting up python binding (making cpp libraries useable in python) 
-"""
+from setuptools import setup, Extension
+import pybind11
 
 ext_modules = [
-    Pybind11Extension(
-        "montecarlo",  # name of the module
-        ["app/cpp/montecarlo.cpp"],  # your cpp file
-    ),
+    Extension(
+        name="montecarlo",
+        sources=["app/cpp/montecarlo.cpp"],
+        include_dirs=[pybind11.get_include()],
+    )
 ]
 
-# Setup configuration
 setup(
-    ext_modules=ext_modules,
-    cmdclass={"build_ext": build_ext}
+    name="montecarlo",
+    version="0.0.1",
+    ext_modules=ext_modules
 )

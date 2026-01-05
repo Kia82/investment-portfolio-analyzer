@@ -42,13 +42,18 @@ float add(float a, float b) {
     return a + b;
 }
 
-PYBIND11_MODULE(montecarlo, m) {
-    pybind11::class_<Result>(m, "Result")
-        .def(pybind11::init<float, float, float>())
-        .def_readwrite("meanPortfolioValue", &Result::meanPortfolioValue)
-        .def_readwrite("variance", &Result::variance)
-        .def_readwrite("pSquareQuantile", &Result::pSquareQuantile);
+// PYBIND11_MODULE(montecarlo, m) {
+//     pybind11::class_<Result>(m, "Result")
+//         .def(pybind11::init<float, float, float>())
+//         .def_readwrite("meanPortfolioValue", &Result::meanPortfolioValue)
+//         .def_readwrite("variance", &Result::variance)
+//         .def_readwrite("pSquareQuantile", &Result::pSquareQuantile);
 
-    m.def("runSimulation", &runSimulation, "Runs a monte carlo simulation with supplied parameters");
-    m.def("add", &add, "A function that adds two numbers");
+//     m.def("runSimulation", &runSimulation, "Runs a monte carlo simulation with supplied parameters");
+//     m.def("add", &add, "A function that adds two numbers");
+// }
+
+PYBIND11_MODULE(montecarlo, m) {
+    m.doc() = "pybind11 example plugin";
+    m.def("add", &add, "A function that adds two numbers", pybind11::arg("i"), pybind11::arg("j"));
 }

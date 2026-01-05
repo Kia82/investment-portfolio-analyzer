@@ -10,8 +10,8 @@ matplotlib         # Plotting price charts, asset allocation pie charts
 seaborn            # Better visualizations and statistical plots
 
 # Database
-SQLAlchemy         # ORM to connect to SQLite or PostgreSQL
-psycopg2-binary    # PostgreSQL connector (skip if using SQLite)
+# SQLAlchemy         # ORM to connect to SQLite or PostgreSQL
+# psycopg2-binary    # PostgreSQL connector (skip if using SQLite)
 
 # CLI or UI
 argparse           # (Comes with Python stdlib — just list it for awareness)
@@ -24,6 +24,6 @@ python-dotenv      # To manage secrets like API keys in a .env file
 pybind11           # For C++ and Python bindings
 
 # Optional testing
-pytest             # For writing unit tests
+# pytest             # For writing unit tests
 sigfig
-montecarlo
+# montecarlo

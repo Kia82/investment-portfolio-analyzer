@@ -5,6 +5,7 @@ import logging
 import sigfig
 import os
 import requests
+# from dotenv import load_dotenv
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -64,5 +65,5 @@ class RiskFreeRate(BaseMetric):
             return rate
             
         except Exception as e:
-            logger.error(f'Error fetching risk-free rate: {e}')
+            logger.error(f' Fetching risk-free rate: {e}')
             return default_risk_rate
